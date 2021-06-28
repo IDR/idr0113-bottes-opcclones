@@ -1,0 +1,10 @@
+---
+continue: "true"
+transfer: "ln_s"
+skip:
+  - checksum
+parallel_upload: "10"
+columns:
+  - target
+  - path
+  - name
