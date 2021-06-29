@@ -1,5 +1,4 @@
 import argparse
-import mimetypes
 import os
 import pandas
 import sys
@@ -11,7 +10,6 @@ from pathlib import Path
 from read_roi import read_roi_zip
 
 # OMERO dependencies
-import omero
 import omero.cli
 from omero.model import ImageI, PointI, RoiI
 from omero.rtypes import (
@@ -20,18 +18,16 @@ from omero.rtypes import (
     rstring,
 )
 from omero_metadata.populate import ParsingContext
-from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 
 # table columns to be linked to the image
 columns = [
-        "Roi"
-        "Cell type"
+        "Roi",
+        "Cell type",
         "Cell Uncertainty",
         "Mother Roi",
         "Mother Uncertainty",
         "Sister Roi",
-        "Sister Uncertainty",
-        "Name"
+        "Sister Uncertainty"
     ]
 
 cell_types = {"1": "OPCs", "2": "PM", "3": "M"}
@@ -103,17 +99,20 @@ def convert(conn, image, df, value, roi_ids):
     omero_mother_id = ""
     omero_sister_id = ""
     if mother_id != "na":
-        omero_mother_id = ids.get(mother_id)
+        omero_mother_id = str(roi_ids.get(mother_id))
     else:
         print("no mother")
     if sister_id != "na":
-        omero_sister_id = ids.get(sister_id)
+        omero_sister_id = str(roi_ids.get(sister_id))
     else:
         print("no sister")
     cell_type = cell_types.get(values[1])
     uncertainty_type = uncertainty_types.get(values[4])
     uncertainty_mother_type = uncertainty_types.get(values[5])
-    uncertainty_sister_type = uncertainty_types.get(values[7])
+    if len(values) >= 8:
+        uncertainty_sister_type = uncertainty_types.get(values[7])
+    else:
+        uncertainty_sister_type = uncertainty_types.get(0)
 
     if roi_type == "point":
         omero_roi = convert_point(value)
@@ -123,20 +122,13 @@ def convert(conn, image, df, value, roi_ids):
         roi_ids.update({cell_id: omero_roi.getId().getValue()})
         df.loc[len(df)] = (omero_roi.getId().getValue(), cell_type,
                            uncertainty_type, omero_mother_id, uncertainty_mother_type,
-                           omero_sister_id, uncertainty_sister_type, name)
+                           omero_sister_id, uncertainty_sister_type)
 
 
 def populate_metadata(conn, image, file_path, file_name):
     """
-    Link the csv file to the image and parse it to create OMERO.table
+    Create OMERO.table from the CSV.
     """
-    mt = mimetypes.guess_type(file_name, strict=False)[0]
-    # originalfile path will be ''
-    fileann = conn.createFileAnnfromLocalFile(
-        file_path, origFilePathAndName=file_name, mimetype=mt, ns=NSBULKANNOTATIONSRAW
-    )
-    fileid = fileann.getFile().getId()
-    image.linkAnnotation(fileann)
     client = image._conn.c
     ctx = ParsingContext(
         client, image._obj, fileid=fileid, file=file_path, allow_nan=True
@@ -158,6 +150,7 @@ def parse_dir(conn, directory):
             roi_dir_name = os.path.basename(os.path.normpath(dir_path)) + "_ROIs"
             roi_zip_name = file_name.replace("Image5D_", "").replace(".tif", "")
             path = os.path.join(dir_path, roi_dir_name)
+            print(file_name)
             query = "select i from Image i where i.name like '%s'" % file_name
             images = query_svc.findAllByQuery(query, None)
             if len(images) == 0:
@@ -168,7 +161,7 @@ def parse_dir(conn, directory):
                 for index in range(len(images)):
                     image = conn.getObject("Image", images[index].getId())
                     # find the corresponding roi files
-                    df = process_rois(conn, image, path)
+                    df = process_rois(conn, image, path, roi_zip_name)
                     iid = image.getId()
                     csv_name = f"{iid}.csv"
                     csv_path = os.path.join(tempfile.gettempdir(), csv_name)
