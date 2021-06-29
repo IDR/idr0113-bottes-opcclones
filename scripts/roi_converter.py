@@ -79,7 +79,7 @@ def process_rois(conn, image, path, roi_zip_name):
         if zip_file.startswith(roi_zip_name):
             roi = read_roi_zip(os.path.join(path, zip_file))
             for key, value in roi.items():
-                omero_roi = convert(conn, image, df, value, roi_ids)
+                omero_roi = convert(conn, image, value, roi_ids)
                 name = value.get("name").lower()
                 to_parse.update({omero_roi.getId().getValue(): name})
     
@@ -118,7 +118,7 @@ def populate_dataframe(roi_ids, to_parse):
     return df
 
 
-def convert(conn, image, df, value, roi_ids):
+def convert(conn, image, value, roi_ids):
     """
     Convert the ImageJ shapes into OMERO shapes.
     Add the metadata to the dataframe
