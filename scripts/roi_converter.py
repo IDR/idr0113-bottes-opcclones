@@ -124,7 +124,7 @@ def convert(conn, image, value, roi_ids):
     Add the metadata to the dataframe
     """
     roi_type = value.get("type").lower()
-
+    name = value.get("name").lower()
     if roi_type == "point":
         omero_roi = convert_point(value)
         omero_roi.setName(rstring(name))
