@@ -73,13 +73,48 @@ def process_rois(conn, image, path, roi_zip_name):
     """
     Parse the roi corresponding to the specified image. 
     """
-    df = pandas.DataFrame(columns=columns)
     roi_ids = {}
+    to_parse = {}
     for zip_file in os.listdir(path):
         if zip_file.startswith(roi_zip_name):
             roi = read_roi_zip(os.path.join(path, zip_file))
             for key, value in roi.items():
-                convert(conn, image, df, value, roi_ids)
+                omero_roi = convert(conn, image, df, value, roi_ids)
+                name = value.get("name").lower()
+                to_parse.update({omero_roi.getId().getValue(): name})
+    
+    return populate_dataframe(roi_ids, to_parse)
+
+
+def populate_dataframe(roi_ids, to_parse):
+    df = pandas.DataFrame(columns=columns)
+    for id, name in to_parse.items():
+        values = name.split("_")
+        cell_id = values[0]
+        mother_id = values[3]
+        sister_id = values[6]
+        omero_mother_id = ""
+        omero_sister_id = ""
+        if mother_id != "na":
+            omero_mother_id = str(roi_ids.get(mother_id))
+        else:
+            print("no mother")
+        if sister_id != "na":
+            omero_sister_id = str(roi_ids.get(sister_id))
+        else:
+            print("no sister")
+        cell_type = cell_types.get(values[1])
+        uncertainty_type = uncertainty_types.get(values[4])
+        uncertainty_mother_type = uncertainty_types.get(values[5])
+        if len(values) >= 8:
+            uncertainty_sister_type = uncertainty_types.get(values[7])
+        else:
+            uncertainty_sister_type = uncertainty_types.get(0)
+        df.loc[len(df)] = (id, cell_type,
+                           uncertainty_type, omero_mother_id,
+                           uncertainty_mother_type, omero_sister_id,
+                           uncertainty_sister_type)
+
     return df
 
 
@@ -89,30 +124,6 @@ def convert(conn, image, df, value, roi_ids):
     Add the metadata to the dataframe
     """
     roi_type = value.get("type").lower()
-    name = value.get("name").lower()
-
-    # Parse the name and extract metadata
-    values = name.split("_")
-    cell_id = values[0]
-    mother_id = values[3]
-    sister_id = values[6]
-    omero_mother_id = ""
-    omero_sister_id = ""
-    if mother_id != "na":
-        omero_mother_id = str(roi_ids.get(mother_id))
-    else:
-        print("no mother")
-    if sister_id != "na":
-        omero_sister_id = str(roi_ids.get(sister_id))
-    else:
-        print("no sister")
-    cell_type = cell_types.get(values[1])
-    uncertainty_type = uncertainty_types.get(values[4])
-    uncertainty_mother_type = uncertainty_types.get(values[5])
-    if len(values) >= 8:
-        uncertainty_sister_type = uncertainty_types.get(values[7])
-    else:
-        uncertainty_sister_type = uncertainty_types.get(0)
 
     if roi_type == "point":
         omero_roi = convert_point(value)
@@ -120,9 +131,6 @@ def convert(conn, image, df, value, roi_ids):
         omero_roi.setImage(ImageI(image.getId(), False))
         omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
         roi_ids.update({cell_id: omero_roi.getId().getValue()})
-        df.loc[len(df)] = (omero_roi.getId().getValue(), cell_type,
-                           uncertainty_type, omero_mother_id, uncertainty_mother_type,
-                           omero_sister_id, uncertainty_sister_type)
 
 
 def populate_metadata(conn, image, file_path, file_name):
