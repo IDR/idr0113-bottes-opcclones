@@ -11,7 +11,9 @@ from pathlib import Path
 from read_roi import read_roi_zip
 
 # OMERO dependencies
-from omero.model import PointI
+import omero
+import omero.cli
+from omero.model import ImageI, PointI, RoiI
 from omero.rtypes import (
     rdouble,
     rint,
@@ -67,11 +69,11 @@ def convert_point(value):
         point.theZ = rint(z)
         point.theT = rint(t)
         point.textValue = rstring(name)
-        roi.addShape(p)
+        roi.addShape(point)
     return roi
 
 
-def process_rois(conn, image, path):
+def process_rois(conn, image, path, roi_zip_name):
     """
     Parse the roi corresponding to the specified image. 
     """
@@ -116,7 +118,7 @@ def convert(conn, image, df, value, roi_ids):
     if roi_type == "point":
         omero_roi = convert_point(value)
         omero_roi.setName(rstring(name))
-        roi.setImage(ImageI(image.getId(), False))
+        omero_roi.setImage(ImageI(image.getId(), False))
         omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
         roi_ids.update({cell_id: omero_roi.getId().getValue()})
         df.loc[len(df)] = (omero_roi.getId().getValue(), cell_type,
