@@ -133,6 +133,7 @@ def convert(conn, image, value, roi_ids):
         omero_roi.setImage(ImageI(image.getId(), False))
         omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
         roi_ids.update({cell_id: omero_roi.getId().getValue()})
+        return omero_roi
 
 
 def populate_metadata(conn, image, file_path, file_name):
