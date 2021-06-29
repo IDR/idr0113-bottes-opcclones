@@ -1,4 +1,5 @@
 import argparse
+import mimetypes
 import os
 import pandas
 import sys
@@ -18,6 +19,7 @@ from omero.rtypes import (
     rstring,
 )
 from omero_metadata.populate import ParsingContext
+from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 
 # table columns to be linked to the image
 columns = [
@@ -140,6 +142,13 @@ def populate_metadata(conn, image, file_path, file_name):
     """
     Create OMERO.table from the CSV.
     """
+    mt = mimetypes.guess_type(file_name, strict=False)[0]
+    # originalfile path will be ''
+    fileann = conn.createFileAnnfromLocalFile(
+        file_path, origFilePathAndName=file_name, mimetype=mt, ns=NSBULKANNOTATIONSRAW
+    )
+    fileid = fileann.getFile().getId()
+    image.linkAnnotation(fileann)
     client = image._conn.c
     ctx = ParsingContext(
         client, image._obj, fileid=fileid, file=file_path, allow_nan=True
