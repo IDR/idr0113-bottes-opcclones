@@ -125,6 +125,8 @@ def convert(conn, image, value, roi_ids):
     """
     roi_type = value.get("type").lower()
     name = value.get("name").lower()
+    values = name.split("_")
+    cell_id = values[0]
     if roi_type == "point":
         omero_roi = convert_point(value)
         omero_roi.setName(rstring(name))
