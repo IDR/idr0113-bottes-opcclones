@@ -148,7 +148,7 @@ def populate_metadata(conn, image, file_path, file_name):
         file_path, origFilePathAndName=file_name, mimetype=mt, ns=NSBULKANNOTATIONSRAW
     )
     fileid = fileann.getFile().getId()
-    image.linkAnnotation(fileann)
+    # image.linkAnnotation(fileann)
     client = image._conn.c
     ctx = ParsingContext(
         client, image._obj, fileid=fileid, file=file_path, allow_nan=True
