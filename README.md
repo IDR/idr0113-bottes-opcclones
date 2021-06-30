@@ -1,5 +1,16 @@
 # idr0113-bottes-opcclones
 
+Pixels size
+-----------
+
+The pixels size needs to be set after import, run:
+
+```
+omero metadata pixelsize --x 2.21645 --y 2.21645 Project:$ID
+```
+
+Replace $ID.
+
 ROIs
 ----
 
