@@ -111,7 +111,7 @@ def populate_dataframe(roi_ids, to_parse):
         uncertainty_mother_type = uncertainty_types.get(values[5])
         uncertainty_sister_type = uncertainty_types.get(0)
         cell_death = ""
-        if len(values) == 8:
+        if len(values) >= 8:
             uncertainty_sister_type = uncertainty_types.get(values[7])
         if len(values) == 9:
             cell_death = "yes"
