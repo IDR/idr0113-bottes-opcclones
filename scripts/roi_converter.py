@@ -29,7 +29,8 @@ columns = [
         "Mother Roi",
         "Mother Uncertainty",
         "Sister Roi",
-        "Sister Uncertainty"
+        "Sister Uncertainty",
+        "Cell Death"
     ]
 
 cell_types = {"1": "OPCs", "2": "PM", "3": "M"}
@@ -108,14 +109,17 @@ def populate_dataframe(roi_ids, to_parse):
         cell_type = cell_types.get(values[1])
         uncertainty_type = uncertainty_types.get(values[4])
         uncertainty_mother_type = uncertainty_types.get(values[5])
-        if len(values) >= 8:
+        uncertainty_sister_type = uncertainty_types.get(0)
+        cell_death = ""
+        if len(values) == 8:
             uncertainty_sister_type = uncertainty_types.get(values[7])
-        else:
-            uncertainty_sister_type = uncertainty_types.get(0)
+        if len(values) == 9:
+            cell_death = "yes"
+
         df.loc[len(df)] = (id, cell_type,
                            uncertainty_type, omero_mother_id,
                            uncertainty_mother_type, omero_sister_id,
-                           uncertainty_sister_type)
+                           uncertainty_sister_type, cell_death)
 
     return df
 
