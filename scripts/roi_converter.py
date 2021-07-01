@@ -11,6 +11,7 @@ from pathlib import Path
 from read_roi import read_roi_zip
 
 # OMERO dependencies
+import omero
 import omero.cli
 from omero.model import ImageI, PointI, RoiI
 from omero.rtypes import (
@@ -59,7 +60,6 @@ def convert_point(value):
     y_coordinates = value.get("y")
     (z, c, t) = handle_position(value.get("position"))
     name = value.get("name")
-    slices = value.get("slices")
     roi = RoiI()
     for i in range(len(x_coordinates)):
         point = PointI()
@@ -74,7 +74,7 @@ def convert_point(value):
 
 def process_rois(conn, image, path, roi_zip_name):
     """
-    Parse the roi corresponding to the specified image. 
+    Parse the roi corresponding to the specified image.
     """
     roi_ids = {}
     to_parse = {}
@@ -85,7 +85,7 @@ def process_rois(conn, image, path, roi_zip_name):
                 omero_roi = convert(conn, image, value, roi_ids)
                 name = value.get("name").lower()
                 to_parse.update({omero_roi.getId().getValue(): name})
-    
+
     return populate_dataframe(roi_ids, to_parse)
 
 
@@ -93,7 +93,6 @@ def populate_dataframe(roi_ids, to_parse):
     df = pandas.DataFrame(columns=columns)
     for id, name in to_parse.items():
         values = name.split("_")
-        cell_id = values[0]
         mother_id = values[3]
         sister_id = values[6]
         omero_mother_id = ""
@@ -149,7 +148,8 @@ def populate_metadata(conn, image, file_path, file_name):
     mt = mimetypes.guess_type(file_name, strict=False)[0]
     # originalfile path will be ''
     fileann = conn.createFileAnnfromLocalFile(
-        file_path, origFilePathAndName=file_name, mimetype=mt, ns=NSBULKANNOTATIONSRAW
+        file_path, origFilePathAndName=file_name, mimetype=mt,
+        ns=NSBULKANNOTATIONSRAW
     )
     fileid = fileann.getFile().getId()
     # image.linkAnnotation(fileann)
@@ -166,7 +166,6 @@ def parse_dir(conn, directory):
     The name of each file should allow us to find the corresponding image.
     """
     query_svc = conn.getQueryService()
-    svc = conn.getUpdateService()
     for subdir, dirs, files in os.walk(directory):
         for f in Path(subdir).glob('*.tif'):
             file_name = os.path.basename(os.path.normpath(f))
