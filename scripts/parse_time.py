@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import sys
 import omero
 import omero.cli
 
@@ -30,10 +31,9 @@ def parse_file(conn, file, project_id):
     df = pd.read_csv (file, sep = '\t')
     # load all the images in the project
     project = conn.getObjects("Project", project_id)
-    for dataset in project.listChildren():
-        for image in dataset.listChildren():
-            values = df.loc[df['ImageName'] == image.getName()]
-            set_planeinfo(conn, image, values)
+    for image in conn.getObjects('Image', opts={'project': project_id}):
+        values = df.loc[df['ImageName'] == image.getName()]
+        set_planeinfo(conn, image, values)
 
 
 
@@ -51,3 +51,6 @@ def main(args):
         finally:
             conn.close()
             print("done")
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
