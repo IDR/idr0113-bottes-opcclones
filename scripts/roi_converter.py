@@ -34,7 +34,7 @@ columns = [
         "Cell Death"
     ]
 
-cell_types = {"1": "OPCs", "2": "PM", "3": "M"}
+cell_types = {"1": "OPC", "2": "PM", "3": "M"}
 uncertainty_types = {"1": "certain", "0-5": "semi-certain", "0": "uncertain"}
 
 
