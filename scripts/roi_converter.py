@@ -25,7 +25,7 @@ from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 # table columns to be linked to the image
 columns = [
         "Roi",
-        "Cell type",
+        "Cell Type",
         "Cell Uncertainty",
         "Mother Roi",
         "Mother Uncertainty",
