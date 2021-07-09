@@ -27,6 +27,7 @@ columns = [
         "Roi",
         "Cell Type",
         "Cell Uncertainty",
+        "Lineage Roi",
         "Mother Roi",
         "Mother Uncertainty",
         "Sister Roi",
@@ -52,7 +53,7 @@ def handle_position(value):
     return (z, c, t)
 
 
-def convert_point(value):
+def convert_point(value, roi):
     """
     Convert the ImageJ point into OMERO point
     """
@@ -60,7 +61,6 @@ def convert_point(value):
     y_coordinates = value.get("y")
     (z, c, t) = handle_position(value.get("position"))
     name = value.get("name")
-    roi = RoiI()
     for i in range(len(x_coordinates)):
         point = PointI()
         point.x = rdouble(x_coordinates[i])
@@ -69,29 +69,56 @@ def convert_point(value):
         point.theT = rint(t)
         point.textValue = rstring(name)
         roi.addShape(point)
-    return roi
 
 
 def process_rois(conn, image, path, roi_zip_name):
     """
     Parse the roi corresponding to the specified image.
     """
-    roi_ids = {}
-    to_parse = {}
+    df = pandas.DataFrame(columns=columns)
     for zip_file in os.listdir(path):
         if zip_file.startswith(roi_zip_name):
-            roi = read_roi_zip(os.path.join(path, zip_file))
-            for key, value in roi.items():
-                omero_roi = convert(conn, image, value, roi_ids)
-                name = value.get("name").lower()
-                to_parse.update({omero_roi.getId().getValue(): name})
+            roi_ids = {}
+            to_parse = {}
+            links = {}
+            ijroi = read_roi_zip(os.path.join(path, zip_file))
+            rois = {}
+            dead_cells = []
+            # initial gathering of shape to find lineage
+            for key, value in ijroi.items():
+                convert(value, rois)
+            for key, value in rois.items():
+                name = value.getName()
+                previous_id = -1
+                values = name.getValue().split("_")
+                cell_id = values[0]
+                dead = False
+                if len(values) == 9:
+                    dead = True
+                index = 0
+                shapes = value.copyShapes()
+                n = len(shapes) -1
+                for s in shapes:
+                    omero_roi = RoiI()
+                    omero_roi.addShape(s)
+                    omero_roi.setName(name)
+                    omero_roi.setImage(ImageI(image.getId(), False))
+                    omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
+                    roi_ids.update({cell_id: omero_roi.getId().getValue()})
+                    to_parse.update({omero_roi.getId().getValue(): name.getValue()})
+                    if previous_id != -1:
+                        links.update({omero_roi.getId().getValue(): previous_id})
+                    previous_id = omero_roi.getId().getValue()
+                    if index == n and dead:
+                        dead_cells.append(omero_roi.getId().getValue())
+                    index += 1
+            populate_dataframe(df, roi_ids, to_parse, links, dead_cells)
+    return df
 
-    return populate_dataframe(roi_ids, to_parse)
 
-
-def populate_dataframe(roi_ids, to_parse):
-    df = pandas.DataFrame(columns=columns)
+def populate_dataframe(df, roi_ids, to_parse, links, dead_cells):
     for id, name in to_parse.items():
+        link = links.get(id)
         values = name.split("_")
         mother_id = values[3]
         sister_id = values[6]
@@ -101,7 +128,7 @@ def populate_dataframe(roi_ids, to_parse):
             omero_mother_id = str(roi_ids.get(mother_id))
         else:
             print("no mother")
-        if sister_id != "na":
+        if sister_id != "na" and link is None:
             omero_sister_id = str(roi_ids.get(sister_id))
         else:
             print("no sister")
@@ -112,33 +139,31 @@ def populate_dataframe(roi_ids, to_parse):
         cell_death = ""
         if len(values) >= 8:
             uncertainty_sister_type = uncertainty_types.get(values[7])
-        if len(values) == 9:
+        if id in dead_cells:
             cell_death = "yes"
 
         df.loc[len(df)] = (id, cell_type,
-                           uncertainty_type, omero_mother_id,
+                           uncertainty_type, link, omero_mother_id,
                            uncertainty_mother_type, omero_sister_id,
                            uncertainty_sister_type, cell_death)
 
-    return df
 
-
-def convert(conn, image, value, roi_ids):
+def convert(value, rois):
     """
     Convert the ImageJ shapes into OMERO shapes.
-    Add the metadata to the dataframe
     """
     roi_type = value.get("type").lower()
     name = value.get("name").lower()
     values = name.split("_")
     cell_id = values[0]
+    if cell_id in rois:
+       roi = rois.get(cell_id)
+    else:
+       roi = RoiI()
+       rois.update({cell_id: roi})
     if roi_type == "point":
-        omero_roi = convert_point(value)
-        omero_roi.setName(rstring(name))
-        omero_roi.setImage(ImageI(image.getId(), False))
-        omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
-        roi_ids.update({cell_id: omero_roi.getId().getValue()})
-        return omero_roi
+        convert_point(value, roi)
+        roi.setName(rstring(name))
 
 
 def populate_metadata(conn, image, file_path, file_name):
