@@ -76,6 +76,7 @@ def process_rois(conn, image, path, roi_zip_name):
     Parse the roi corresponding to the specified image.
     """
     df = pandas.DataFrame(columns=columns)
+    svc = conn.getUpdateService()
     for zip_file in os.listdir(path):
         if zip_file.startswith(roi_zip_name):
             roi_ids = {}
@@ -89,28 +90,30 @@ def process_rois(conn, image, path, roi_zip_name):
                 convert(value, rois)
             for key, value in rois.items():
                 name = value.getName()
+                nv = name.getValue()
                 previous_id = -1
-                values = name.getValue().split("_")
+                values = nv.split("_")
                 cell_id = values[0]
                 dead = False
                 if len(values) == 9:
                     dead = True
                 index = 0
                 shapes = value.copyShapes()
-                n = len(shapes) -1
+                n = len(shapes) - 1
                 for s in shapes:
                     omero_roi = RoiI()
                     omero_roi.addShape(s)
                     omero_roi.setName(name)
                     omero_roi.setImage(ImageI(image.getId(), False))
-                    omero_roi = conn.getUpdateService().saveAndReturnObject(omero_roi)
-                    roi_ids.update({cell_id: omero_roi.getId().getValue()})
-                    to_parse.update({omero_roi.getId().getValue(): name.getValue()})
+                    omero_roi = svc.saveAndReturnObject(omero_roi)
+                    rid = omero_roi.getId().getValue()
+                    roi_ids.update({cell_id: rid})
+                    to_parse.update({rid: nv})
                     if previous_id != -1:
-                        links.update({omero_roi.getId().getValue(): previous_id})
-                    previous_id = omero_roi.getId().getValue()
+                        links.update({rid: previous_id})
+                    previous_id = rid.getValue()
                     if index == n and dead:
-                        dead_cells.append(omero_roi.getId().getValue())
+                        dead_cells.append(rid.getValue())
                     index += 1
             populate_dataframe(df, roi_ids, to_parse, links, dead_cells)
     return df
@@ -157,10 +160,10 @@ def convert(value, rois):
     values = name.split("_")
     cell_id = values[0]
     if cell_id in rois:
-       roi = rois.get(cell_id)
+        roi = rois.get(cell_id)
     else:
-       roi = RoiI()
-       rois.update({cell_id: roi})
+        roi = RoiI()
+        rois.update({cell_id: roi})
     if roi_type == "point":
         convert_point(value, roi)
         roi.setName(rstring(name))
