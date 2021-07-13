@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pip
+  # ome: minimal dependencies required to use the Python API
+  - idr-py
+  - pandas
+  - python-graphviz
+  - pip:
+    - jupyter-notebookparams
