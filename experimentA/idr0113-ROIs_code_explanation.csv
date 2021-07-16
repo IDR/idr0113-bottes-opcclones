@@ -1,0 +1,25 @@
+Parameters of the code,Value,Description
+Cell ID,Unique identifier (e.g. 2-1),A series of two digits uniquely identifying the cell
+,,
+Cell type,1,"OPC: oligodendrocyte precursor cells (OPCs) and committed oligodendrocyte precursors (COPs). Cells with some processes of similar length that radially extends from the cell body. These processes have no extensions along axons. Identified in post imaging immunostaining as Sox10 positive MBP negative. Note: we cannot definitely exclude the possibility that very early NFOL would be, in some cases, classified as progenitors."
+,2,"PM: pre-myelinating oligodendrocytes (or NFOL). Cells with many processes of similar length that radially extends from the cell body. One or few processes initiate remyelination extending along axons. Identified in post imaging immunostaining as Sox10 positive with few MBP positive processes (6, 7, 41)."
+,3,M: myelinating oligodendrocytes. Cells in which all processes ensheath axons and are parallel among each other. Identified in post imaging immunostaining as Sox10 positive with MBP positive processes.
+,,
+Time point,,Number of the imaging time point in which the cell has been annotated.
+,,
+Mother ID,Unique identifier (e.g. 1-1),Cell ID of the mother of the current cell. Not Available (NA) if the cell is the first root cell of the clone.
+,,
+Uncertainty type,1,Certain cell type: cell fulfills all the criteria mentioned above.
+,0,"Uncertain cell type: no clear indications from morphology; the cell is assigned to the most likely cell type with uncertainty. In case the first mother root cell of the clone was not visible before a potential first division, an OPC cell type is assigned but it is classified as uncertain."
+,,
+Uncertainty mother,1,Lineage transition is certain: location of the mother in the previous time point and location and morphology of the two sister cells are clearly identifying the transition from mother to daughters. Only possible when exactly two daughter cells are generated.
+,0.5,"Lineage transition is semi-certain: location of the mother in the previous time point and location and morphology of the sister cells are identifying the transition from that mother to the daughters. However, more than two daughters are present indicating that at least one division has been lost."
+,0,Lineage transition is uncertain: impossible to determine the mother cell because several potential cells in the previous time point could have generated the daughters. The most probable cell is chosen as mother and label as uncertain.
+,,
+Sister ID,Unique identifier (e.g. 2-2),Cell ID of the second daughter cell that originates from a common mother cell. Not Available (NA) if the daughter cells generated are odd and no sister can be associated to the cell.
+,,
+Uncertainty sister,1,Certain sister: sister relationship is certain because lineage transition is certain. 
+,0.5,Semi-certain sister: lineage transition is semi-certain. The most probable sister among the multiple daughter cells generated according to the location and morphology of the cells is chosen.
+,0,Uncertain sister: lineage transition is uncertain. The most probable sister among the cells generated is chosen.
+,,
+Cell death,0 added to the code,"Cell disappears from its previous location (without movement to another location) or apoptotic body is detected. Importantly, during each imaging session all SPOTs are checked and their surrounding area (on x, y and z axis) is monitored to identify migrating cells. When cells disappear from a SPOT, they were not detected anywhere else in the surrounding tissue under the window."

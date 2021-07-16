@@ -1,0 +1,72 @@
+---
+name: idr0113-bottes-opcclones/experimentA
+version: 1
+
+defaults:
+  include: no
+  type: string
+  includeclient: yes
+  visible: yes
+  omitempty: yes
+
+columns:
+
+  - name: Characteristics [Strain]
+    clientname: Strain
+    include: yes
+
+  - name: Reporter
+    clientname: Reporter
+    include: yes
+
+  - name: Experimental Condition [Genotype]
+    clientname: Genotype
+    include: yes
+
+  - name: Characteristics [Age]
+    clientname: Age
+    include: yes
+
+  - name: Characteristics [Organism Part]
+    clientname: Organism Part
+    include: yes
+
+  - name: Protocol REF
+    clientname: Protocol
+    include: yes
+
+  - name: Experimental Condition [Demyelinated Corpus Callosum]
+    clientname: Demyelinated Corpus Callosum
+    include: yes
+
+  - name: Comment [Image File Comments]
+    clientname: Image File Comments
+    include: yes
+
+  - name: Comment [Image File Type Comments]
+    clientname: Image File Type Comments
+    include: yes
+
+  - name: Channels
+    clientname: Channels
+    include: yes
+
+
+  ######################################################################
+  # mapr groups
+  ######################################################################
+
+  - group:
+      namespace: openmicroscopy.org/mapr/organism
+      columns:
+        - name: Characteristics [Organism]
+          clientname: Organism
+          include: yes
+
+
+advanced:
+  ignore_missing_primary_key: yes
+  primary_group_keys:
+    - namespace: openmicroscopy.org/mapr/organism
+      keys:
+        - Organism
