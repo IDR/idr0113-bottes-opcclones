@@ -111,9 +111,9 @@ def process_rois(conn, image, path, roi_zip_name):
                     to_parse.update({rid: nv})
                     if previous_id != -1:
                         links.update({rid: previous_id})
-                    previous_id = rid.getValue()
+                    previous_id = rid
                     if index == n and dead:
-                        dead_cells.append(rid.getValue())
+                        dead_cells.append(rid)
                     index += 1
             populate_dataframe(df, roi_ids, to_parse, links, dead_cells)
     return df
