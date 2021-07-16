@@ -1,9 +1,14 @@
+import argparse
+import sys
+
 import omero
 import omero.cli
 
+
+
 NOTEBOOK_NAME = "idr0113_lineage.ipynb"
 NAMESPACE = "openmicroscopy.org/idr/analysis/notebook"
-REF_URL = "https://binder.bioimagearchive.org/v2/gh/IDR/idr0113-bottes-opcclones/master?urlpath=notebooks%2Fnotebooks%2Fidr0113_lineage.ipynb%3FimageId%3D"
+REF_URL = "https://binder.bioimagearchive.org/v2/gh/IDR/idr0113-bottes-opcclones/main?urlpath=notebooks%2Fnotebooks%2Fidr0113_lineage.ipynb%3FimageId%3D"
 
 
 # Load the images in the project
@@ -37,7 +42,7 @@ def main(args):
         try:
             conn = omero.gateway.BlitzGateway(client_obj=c.get_client())
             conn.c.enableKeepAlive(60)
-            parse_file(conn, args.inputfile, args.id)
+            load_data(conn, args.id)
         finally:
             conn.close()
             print("done")
