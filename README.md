@@ -37,3 +37,9 @@ To create the time information the file [timelapse.tsv](experimentA/timelapse.ts
 is parsed.
 
 Run the script specifying the inputfile and the project ID.
+
+Add notebook Link
+-----------------
+
+To add a link to the images with ROIs, run [add_notebook_link.py](scripts/add_notebook_link.py)
+specifying the project ID as a parameter.
