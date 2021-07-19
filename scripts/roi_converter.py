@@ -219,6 +219,7 @@ def parse_dir(conn, directory):
                     df.to_csv(csv_path, index=False)
                     # Create an OMERO.table from csv
                     populate_metadata(conn, image, csv_path, csv_name)
+                    os.remove(csv_path)
 
 
 def main(args):
