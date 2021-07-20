@@ -20,7 +20,8 @@ Replace $ID by the project ID for the experiment ``idr0113-bottes-opcclones``.
 ROIs
 ----
 
-* Run:
+* As root, in the virtual environment where all the dependenices are installed, run:
+
 
 ```
 pip install -r requirements.txt
@@ -38,7 +39,7 @@ is parsed.
 
 Run the script specifying the inputfile and the project ID.
 
-Add notebook Link
+Add Notebook Link
 -----------------
 
 To add a link to the images with ROIs, run [add_notebook_link.py](scripts/add_notebook_link.py)
