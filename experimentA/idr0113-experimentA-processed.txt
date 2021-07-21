@@ -3,7 +3,7 @@ LPC-induced focal demyelination and in vivo imaging of genetically targeted OPCs
 Longitudinal observation of OPCs and their progeny for up to two months reveals functional inter- and intraclonal heterogeneity and provides insights into the cell division capacity and the migration/differentiation dynamics of OPCs and their daughter cells in vivo.
 The majority of the clones remained quiescent or divided only few times. Some OPCs were highly proliferative. 
 Large clones showed longer times between consecutive divisions compared to low proliferating clones.
-"OPCs show distinct modes of cell division: from symmetric proliferative, to symmetric differentiating and also asymmetric cell division, where the OPC is self-renewed while the other daughter cell differentiates."
-"Only 16.46% of OPC-derived cells differentiated into mature, remyelinating oligodendrocytes, with OPCs born at early divisions showing a higher probability to survive and to terminally differentiate. "
-"Cell death was associated with distinct cell division histories of different clones, with higher probability of death when generated at later divisions."
+OPCs show distinct modes of cell division: from symmetric proliferative, to symmetric differentiating and also asymmetric cell division, where the OPC is self-renewed while the other daughter cell differentiates.
+Only 16.46% of OPC-derived cells differentiated into mature, remyelinating oligodendrocytes, with OPCs born at early divisions showing a higher probability to survive and to terminally differentiate.
+Cell death was associated with distinct cell division histories of different clones, with higher probability of death when generated at later divisions.
 Migratory behaviour was restricted to progenitors. Successfully differentiating progenitors moved shorter distances per day compared to dying cells.
