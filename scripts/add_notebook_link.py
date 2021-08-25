@@ -8,7 +8,7 @@ import omero.cli
 
 NOTEBOOK_NAME = "idr0113_lineage.ipynb"
 NAMESPACE = "openmicroscopy.org/idr/analysis/notebook"
-REF_URL = "https://binder.bioimagearchive.org/v2/gh/IDR/idr0113-bottes-opcclones/main?urlpath=notebooks%2Fnotebooks%2Fidr0113_lineage.ipynb%3FimageId%3D"
+REF_URL = "https://mybinder.org/v2/gh/IDR/idr0113-bottes-opcclones/HEAD?urlpath=notebooks%2Fnotebooks%2Fidr0113_lineage.ipynb%3FimageId%3D"
 
 
 # Load the images in the project
