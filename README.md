@@ -52,9 +52,13 @@ Export tracks to OME-NGFF
 -------------------------
 
 To export a sample image as an OME-NGFF with tracks stored in AnnData tables
-for viewing in `napari`:
+for viewing in `napari`. First, use `omero-cli-zarr` plugin to export the Image:
 
     $ omero zarr export Image:13425213
+
+We need `ome-ngff-tables-prototype` and it is safest to pin to a known commit:
+
+    $ pip install git+https://github.com/kevinyamauchi/ome-ngff-tables-prototype.git@51cc60e22807e67253ffcbebbe6dabb597fb94dd
     $ python path/to/notebooks/idr0113_to_ngff_table.py
 
 Then open in napari:
