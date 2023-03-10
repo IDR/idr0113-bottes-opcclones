@@ -46,3 +46,17 @@ Add Notebook Link
 
 To add a link to the images with ROIs, run [add_notebook_link.py](scripts/add_notebook_link.py)
 specifying the project ID as a parameter.
+
+
+Export tracks to OME-NGFF
+-------------------------
+
+To export a sample image as an OME-NGFF with tracks stored in AnnData tables
+for viewing in `napari`:
+
+    $ omero zarr export Image:13425213
+    $ python path/to/notebooks/idr0113_to_ngff_table.py
+
+Then open in napari:
+
+    $ napari --plugin napari-ome-zarr 13425213.zarr
