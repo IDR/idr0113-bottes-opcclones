@@ -6,7 +6,7 @@ import anndata as ad
 from scipy.sparse import csr_matrix
 from ome_zarr.io import parse_url
 import zarr
-from ngff_tables_prototype.writer import write_table_regions
+from ngff_tables_prototype.writer import write_table_points
 
 from omero.cli import cli_login
 from omero.gateway import BlitzGateway
@@ -27,16 +27,9 @@ def process_image(conn, imageId):
     for i in infos:
         times.update({i.theT.getValue(): int(i.deltaT.getValue())})
 
-    # create http session
-    with requests.Session() as session:
-        prepped = session.prepare_request(request)
-        response = session.send(prepped)
-        if response.status_code != 200:
-            response.raise_for_status()
-
     qs = {'key': imageId}
     url = ROI_URL.format(**qs)
-    json_data = session.get(url).json()
+    json_data = requests.get(url).json()
 
     # Look-up shapes from their ROI ID
     roi_map = {}
@@ -48,7 +41,7 @@ def process_image(conn, imageId):
             roi_map.update({roi_id: s})
 
     url = TABLE_URL.format(**qs)
-    json_data = session.get(url).json()
+    json_data = requests.get(url).json()
 
     df = pd.DataFrame(columns=json_data['data']['columns'])
     for r in json_data['data']['rows']:
@@ -116,12 +109,9 @@ def process_image(conn, imageId):
     root = zarr.group(store=store)
 
     tables_group = root.create_group(name="tables")
-    write_table_regions(
+    write_table_points(
         group=tables_group,
-        adata=adata,
-        region="labels/label_image",
-        region_key=None,
-        instance_key="cell_id"
+        adata=adata
     )
 
 
